@@ -1,25 +1,124 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Earthquake Map</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-  <!-- Custom CSS -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer</title>
   <style>
-    /* Paste full CSS code here */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    #pomodoro {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    #timer {
+      font-size: 48px;
+      margin: 20px 0;
+    }
+    .buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    input[type="number"] {
+      width: 60px;
+      font-size: 16px;
+    }
+    p.note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <div id="pomodoro">
+    <h1>Pomodoro Timer</h1>
+    
+    <label for="timeInput">Set time (minutes): </label>
+    <input type="number" id="timeInput" min="1" max="120" value="25" />
+    <p class="note">* Don't forget to reset after changing the time</p>
+    
+    <div id="timer">25:00</div>
+    
+    <div class="buttons">
+      <button id="start">Start</button>
+      <button id="pause" disabled>Pause</button>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let timeInput = document.getElementById("timeInput");
+    let timerDisplay = document.getElementById("timer");
+    let startBtn = document.getElementById("start");
+    let pauseBtn = document.getElementById("pause");
+    let resetBtn = document.getElementById("reset");
 
-  <!-- Main JavaScript -->
-  
+    let totalTime = parseInt(timeInput.value) * 60;
+    let remainingTime = totalTime;
+    let interval = null;
+
+    function updateTimerDisplay() {
+      let minutes = Math.floor(remainingTime / 60);
+      let seconds = remainingTime % 60;
+      timerDisplay.textContent =
+        String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+    }
+
+    function startTimer() {
+      if (interval) return;
+      interval = setInterval(() => {
+        if (remainingTime > 0) {
+          remainingTime--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(interval);
+          interval = null;
+          alert("Time's up!");
+        }
+      }, 1000);
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+    }
+
+    function pauseTimer() {
+      clearInterval(interval);
+      interval = null;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    function resetTimer() {
+      clearInterval(interval);
+      interval = null;
+      totalTime = parseInt(timeInput.value) * 60;
+      remainingTime = totalTime;
+      updateTimerDisplay();
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    startBtn.addEventListener("click", startTimer);
+    pauseBtn.addEventListener("click", pauseTimer);
+    resetBtn.addEventListener("click", resetTimer);
+
+    timeInput.addEventListener("change", () => {
+      totalTime = parseInt(timeInput.value) * 60;
+      remainingTime = totalTime;
+      updateTimerDisplay();
+    });
+
+    updateTimerDisplay();
+  </script>
 </body>
 </html>
