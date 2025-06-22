@@ -1,51 +1,69 @@
-/* style.css */
-#pomodoro {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  text-align: center;
-  margin-top: 60px;
-  background: #f4f4f4;
-  padding: 30px;
-  border-radius: 12px;
-  width: 280px;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+// script.js
+let timerDisplay = document.getElementById('timer');
+let startBtn = document.getElementById('start');
+let pauseBtn = document.getElementById('pause');
+let resetBtn = document.getElementById('reset');
+let timeInput = document.getElementById('timeInput');
+
+let pomodoroDuration = parseInt(timeInput.value) * 60; // in seconds
+let timeLeft = pomodoroDuration;
+let timerInterval = null;
+
+function updateDisplay() {
+  let minutes = Math.floor(timeLeft / 60);
+  let seconds = timeLeft % 60;
+  timerDisplay.textContent = 
+    `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 }
 
-#timeInput {
-  width: 60px;
-  font-size: 18px;
-  padding: 4px;
-  margin-left: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  text-align: center;
+function startTimer() {
+  // Disable changing time while timer is running
+  timeInput.disabled = true;
+
+  if (timerInterval) return; // Already running
+  timerInterval = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      updateDisplay();
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      alert("Time's up! Take a break 😊");
+      pauseBtn.disabled = true;
+      startBtn.disabled = false;
+      timeInput.disabled = false;
+    }
+  }, 1000);
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
 }
 
-#timer {
-  font-size: 48px;
-  margin: 20px 0;
-  font-weight: bold;
-  color: #e63946;
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  timeInput.disabled = false;
 }
 
-.buttons button {
-  font-size: 16px;
-  padding: 8px 14px;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background-color: #457b9d;
-  color: white;
-  transition: background-color 0.3s ease;
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  pomodoroDuration = parseInt(timeInput.value) * 60;
+  if (isNaN(pomodoroDuration) || pomodoroDuration <= 0) {
+    pomodoroDuration = 25 * 60; // fallback to 25 minutes
+    timeInput.value = 25;
+  }
+  timeLeft = pomodoroDuration;
+  updateDisplay();
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  timeInput.disabled = false;
 }
 
-.buttons button:hover:not(:disabled) {
-  background-color: #1d3557;
-}
+startBtn.addEventListener('click', startTimer);
+pauseBtn.addEventListener('click', pauseTimer);
+resetBtn.addEventListener('click', resetTimer);
 
-.buttons button:disabled {
-  background-color: #a8a8a8;
-  cursor: not-allowed;
-}
+// Update timer display initially based on default input value
+resetTimer();
