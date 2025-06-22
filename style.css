@@ -1,51 +1,69 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+// script.js
+let timerDisplay = document.getElementById('timer');
+let startBtn = document.getElementById('start');
+let pauseBtn = document.getElementById('pause');
+let resetBtn = document.getElementById('reset');
+let timeInput = document.getElementById('timeInput');
+
+let pomodoroDuration = parseInt(timeInput.value) * 60; // in seconds
+let timeLeft = pomodoroDuration;
+let timerInterval = null;
+
+function updateDisplay() {
+  let minutes = Math.floor(timeLeft / 60);
+  let seconds = timeLeft % 60;
+  timerDisplay.textContent = 
+    `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 }
 
-#map {
-  height: 100vh;
-  width: 100%;
+function startTimer() {
+  // Disable changing time while timer is running
+  timeInput.disabled = true;
+
+  if (timerInterval) return; // Already running
+  timerInterval = setInterval(() => {
+    if (timeLeft > 0) {
+      timeLeft--;
+      updateDisplay();
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      alert("Time's up! Take a break 😊");
+      pauseBtn.disabled = true;
+      startBtn.disabled = false;
+      timeInput.disabled = false;
+    }
+  }, 1000);
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
 }
 
-/* Pulse effect */
-.pulse-wrapper {
-  pointer-events: none;
-  position: absolute;
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  timeInput.disabled = false;
 }
 
-.pulse-ring {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 0, 0, 0.6);
-  border-radius: 50%;
-  animation: pulse-ring 2s infinite ease-out;
-  transform: translate(-50%, -50%);
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.5);
-    opacity: 0.8;
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  pomodoroDuration = parseInt(timeInput.value) * 60;
+  if (isNaN(pomodoroDuration) || pomodoroDuration <= 0) {
+    pomodoroDuration = 25 * 60; // fallback to 25 minutes
+    timeInput.value = 25;
   }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.4;
-  }
-  100% {
-    transform: scale(2.5);
-    opacity: 0;
-  }
+  timeLeft = pomodoroDuration;
+  updateDisplay();
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  timeInput.disabled = false;
 }
 
-/* Magnitude label */
-.mag-label span {
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-}
+startBtn.addEventListener('click', startTimer);
+pauseBtn.addEventListener('click', pauseTimer);
+resetBtn.addEventListener('click', resetTimer);
+
+// Update timer display initially based on default input value
+resetTimer();
