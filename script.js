@@ -1,52 +1,51 @@
-// Create the map
-const map = L.map('map').setView([20, 0], 2);
+/* style.css */
+#pomodoro {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  margin-top: 60px;
+  background: #f4f4f4;
+  padding: 30px;
+  border-radius: 12px;
+  width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
 
-// Add OpenStreetMap tiles
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 10,
-}).addTo(map);
+#timeInput {
+  width: 60px;
+  font-size: 18px;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
 
-// Fetch Earthquake Data
-fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson")
-  .then(res => res.json())
-  .then(data => {
-    data.features.forEach(eq => {
-      const [lon, lat, depth] = eq.geometry.coordinates;
-      const mag = eq.properties.mag;
-      const place = eq.properties.place;
-      const time = new Date(eq.properties.time).toLocaleString();
+#timer {
+  font-size: 48px;
+  margin: 20px 0;
+  font-weight: bold;
+  color: #e63946;
+}
 
-      // Add pulsing ring effect
-      L.marker([lat, lon], {
-        icon: L.divIcon({
-          className: 'pulse-wrapper',
-          html: `<div class="pulse-ring"></div>`,
-          iconSize: [20, 10],
-          iconAnchor: [10, -8]
-        }),
-        interactive: false
-      }).addTo(map);
+.buttons button {
+  font-size: 16px;
+  padding: 8px 14px;
+  margin: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background-color: #457b9d;
+  color: white;
+  transition: background-color 0.3s ease;
+}
 
-      // Add circle marker
-      L.circleMarker([lat, lon], {
-        radius: mag * 2,
-        color: mag > 5 ? 'red' : mag > 3 ? 'orange' : 'green',
-        fillOpacity: 0.8
-      }).addTo(map)
-        .bindPopup(`<strong>${place}</strong><br>
-                    Magnitude: ${mag}<br>
-                    Depth: ${depth} km<br>
-                    Time: ${time}`);
+.buttons button:hover:not(:disabled) {
+  background-color: #1d3557;
+}
 
-      // Add magnitude label
-      L.marker([lat, lon], {
-        icon: L.divIcon({
-          className: 'mag-label',
-          html: `<span>${mag.toFixed(1)}</span>`,
-          iconSize: [30, 10],
-          iconAnchor: [15, -10]
-        })
-      }).addTo(map);
-    });
-  });
-
+.buttons button:disabled {
+  background-color: #a8a8a8;
+  cursor: not-allowed;
+}
